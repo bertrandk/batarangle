@@ -85,16 +85,40 @@ function traverseTree(compEl, cb) {
   });
 }
 
+function listenToChanges(el, cb) {
+  // TODO(bertrandk): Move to Mutation Events API
+  el.addEventListener("DOMNodeInserted", function(e) {
+    cb('ADD', ng.probe(e.target));
+  }, false);
+  
+  el.addEventListener("DOMNodeRemoved", function(e) {
+    cb('REMOVE', ng.probe(e.target));
+  }, false);
+  
+  el.addEventListener("DOMAttrModified", function(e) {
+    cb('CHANGE', ng.probe(e.target));
+  }, false);
+}
+
 function attachComponents(stream, treeRoot) {
   const EVENT_TYPES = {
     ADD: 'added',
     REMOVE: 'removed',
-    MOVE: 'moved',
     CHANGE: 'changed',
   };
 
   traverseTree(treeRoot, (el) => {
     stream.onNext(emitComponentEvent(EVENT_TYPES.ADD, el));
+  });
+}
+
+function observeComponents(component, state, rootEl) {
+  listenToChanges(rootEl, (evt, el) => {
+    component.onNext(emitComponentEvent(EVENT_TYPES[evt], el));
+    
+    // TODO(bertrandk): Find a better way to do this.
+    // Re-emit component states
+    attachState(state, ng.probe(rootEl));
   });
 }
 
@@ -110,4 +134,6 @@ function init() {
 
   attachComponents(componentStream, debugEl);
   attachState(stateStream, debugEl);
+  
+  observeComponents(componentStream, stateStream, appRoot)
 }
