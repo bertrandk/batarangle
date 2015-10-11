@@ -1,7 +1,7 @@
 {
   "name": "batarangle",
   "version": "0.0.1",
-  "description": "Chrome Developer Tools Extension for inspecting Angular 2.0 applications",
+  "description": "Chrome Developer Tools Extension for inspecting Angular 2.0 applications.",
   "repository": {
     "type": "git",
     "url": "https://github.com/rangle/batarangle.git"
@@ -9,6 +9,7 @@
   "keywords": [
     "angular",
     "angularjs",
+    "dev tools",
     "chrome",
     "extension"
   ],
@@ -17,22 +18,22 @@
   },
   "homepage": "https://github.com/rangle/batarangle",
   "scripts": {
-    "postinstall": "tsd install"
-  },
-  "dependencies": {
-    "angular2": "^2.0.0-alpha.37",
-    "crypto": "0.0.3",
-    "immutable": "^3.7.5",
-    "rx": "^4.0.0",
-    "systemjs": "^0.19.3"
+    "test": "./node_modules/ts-node/bin.js ./node_modules/tape/bin/tape 'tests/**/*.ts'",
+    "test-watch": "./node_modules/watch/cli.js 'browserify tests/**/*.ts -p [ ./node_modules/tsify --noImplicitAny ] | tape-run | tnyan'"
   },
   "devDependencies": {
-    "del": "^2.0.2",
-    "gulp": "^3.9.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-tslint": "^3.2.0",
-    "gulp-typescript": "^2.9.0",
-    "tsd": "^0.6.4",
-    "typescript": "^1.6.2"
+    "browserify": "^11.2.0",
+    "tap-nyan": "0.0.2",
+    "tape": "^4.2.1",
+    "tape-catch": "^1.0.4",
+    "tape-run": "^1.1.0",
+    "ts-node": "^0.2.4",
+    "tsify": "^0.12.2",
+    "typescript": "^1.6.2",
+    "watch": "^0.16.0"
+  },
+  "dependencies": {
+    "angular2": "^2.0.0-alpha.40",
+    "rx": "^4.0.1"
   }
 }
