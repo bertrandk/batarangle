@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "experimentalDecorators": true,
+    "module": "umd",
+    "outDir": "lib",
+    "noImplicitAny": true
+  }
+}

@@ -19,11 +19,12 @@
   "homepage": "https://github.com/rangle/batarangle",
   "scripts": {
     "test": "./node_modules/ts-node/bin.js ./node_modules/tape/bin/tape 'tests/**/*.ts'",
-    "test-watch": "./node_modules/watch/cli.js 'browserify tests/**/*.ts -p [ ./node_modules/tsify --noImplicitAny ] | tape-run | tnyan' src/ tests/"
+    "test-watch": "./node_modules/watch/cli.js 'browserify tests/**/*.ts -p [ ./node_modules/tsify ] | tape-run | tap-spec' src/ tests/"
   },
   "devDependencies": {
     "browserify": "^11.2.0",
     "tap-nyan": "0.0.2",
+    "tap-spec": "^4.1.0",
     "tape": "^4.2.1",
     "tape-catch": "^1.0.4",
     "tape-run": "^1.1.0",
