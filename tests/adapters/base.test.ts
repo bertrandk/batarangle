@@ -113,7 +113,45 @@ test('adapters/base: #changeComponents', t => {
   document.body.removeChild(htmlRoot);
 });
 
-test('adapters/base: #removeComponent', t => {
+test('adapters/base: #removeRoot', t => {
+  t.plan(1);
+
+
+  // Arrange
+  const rootText = document.createTextNode("I am root!");
+  const childText = document.createTextNode("I am child!");
+  const rootDiv = document.createElement('div');
+  const childDiv =  document.createElement('span');
+
+  rootDiv.setAttribute('_ngcontent-hkq-0', '');
+  rootDiv.appendChild(rootText);
+  childDiv.appendChild(childText);
+  rootDiv.appendChild(childDiv);
+  document.body.appendChild(rootDiv);
+
+  const adapter = new BaseAdapter();
+  const htmlRoot = document.body.querySelector('[_ngcontent-hkq-0]');
+  const htmlChild = htmlRoot.firstElementChild;
+
+
+  // Assert
+  adapter.subscribe((evt: AdapterEvent) => {
+    t.deepEqual(evt, {
+      type: AdapterEventType.REMOVE,
+      node: htmlRoot,
+    }, 'emits element removed event');
+  });
+
+
+  // Act
+  adapter.removeRoot(htmlRoot);
+
+
+  // Cleanup
+  document.body.removeChild(htmlRoot);
+});
+
+test('adapters/base: #removeChild', t => {
   t.plan(1);
 
 
@@ -144,7 +182,7 @@ test('adapters/base: #removeComponent', t => {
 
 
   // Act
-  adapter.removeComponent(htmlChild);
+  adapter.removeChild(htmlChild);
 
 
   // Cleanup

@@ -39,6 +39,7 @@ export class Angular2Adapter extends BaseAdapter {
     roots.forEach(root => this._traverseTree(inspectNativeElement(root),
                                              this._emitNativeElement),
                                              true);
+    roots.forEach(root => this._trackChanges(root));
   }
 
   cleanup(): void {
