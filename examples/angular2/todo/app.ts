@@ -1,6 +1,13 @@
 /// <reference path="typings/angular2/angular2.d.ts" />
-import {Component, View, bootstrap, NgIf, NgFor} from 'angular2/angular2';
+import {Component, View, bootstrap, NgIf, NgFor, bind} from 'angular2/angular2';
 import {TodoStore, Todo} from 'services/store';
+
+import {
+  AppViewListener
+} from 'angular2/src/core/linker/view_listener';
+import {
+  DebugElementViewListener
+} from 'angular2/src/core/debug/debug_element_view_listener';
 
 const ESC_KEY = 27;
 const ENTER_KEY = 13;
@@ -75,4 +82,6 @@ class TodoApp {
   }
 }
 
-bootstrap(TodoApp).then(f => window.test = f);
+bootstrap(TodoApp, [
+  bind(AppViewListener).toClass(DebugElementViewListener)
+]).then(f => window.test = f);
