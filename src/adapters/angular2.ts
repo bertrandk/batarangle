@@ -30,7 +30,8 @@ import {
 import { BaseAdapter } from './base';
 
 
-export class angular2Adapter extends BaseAdapter {
+export class Angular2Adapter extends BaseAdapter {
+  private _observer: MutationObserver;
 
   setup(): void {
     const roots = this._findRoots();
@@ -45,14 +46,17 @@ export class angular2Adapter extends BaseAdapter {
     this.unsubscribe();
   }
 
-  _findRoots(): Element[] {
+  _rootSelector(): string {
     // Taken from debug_element_view_listener.ts
     const NG_ID_PROPERTY = 'ngid';
     const NG_ID_SEPARATOR = '#';
 
 
-    const ROOT_SELECTOR = `[data-${ NG_ID_PROPERTY }$='${ NG_ID_SEPARATOR }0']`;
-    const roots = document.body.querySelectorAll(ROOT_SELECTOR);
+    return `[data-${ NG_ID_PROPERTY }$='${ NG_ID_SEPARATOR }0']`;
+  }
+
+  _findRoots(): Element[] {
+    const roots = document.body.querySelectorAll(this._rootSelector());
 
     return Array.prototype.slice.call(roots);
   }
@@ -69,7 +73,7 @@ export class angular2Adapter extends BaseAdapter {
     });
   }
 
-  _getComponentChildren(compEl: DebugElement) {
+  _getComponentChildren(compEl: DebugElement): DebugElement[] {
     return compEl.componentViewChildren;
   }
 
@@ -84,6 +88,80 @@ export class angular2Adapter extends BaseAdapter {
   }
 
   _removeAllListeners(): void {
+    this._observer.disconnect();
+  }
 
+  _trackChanges(el: Element): void {
+
+    this._observer = new MutationObserver(this._handleChanges);
+
+    this._observer.observe(el, {
+      attributes: true,
+      childList: true,
+      characterData: true,
+      subtree: true
+    });
+  }
+
+  _handleChanges(mutations: MutationRecord[]): void {
+    mutations.forEach(mutation => {
+      switch(mutation.type) {
+        case 'attributes':
+          this.changeComponent(<Element>mutation.target);
+
+          break;
+        case 'childList':
+          const additions = Array.prototype.slice.call(mutation.addedNodes);
+          const removals = Array.prototype.slice.call(mutation.removedNodes);
+
+          additions.forEach(this._handleNodeAddition);
+          removals.forEach(this._handleNodeRemoval);
+
+          break;
+        case 'characterData':
+        default:
+          return;
+      }
+    });
+  }
+
+  _handleNodeAddition(node: Node): void {
+    const el = <Element>node;
+
+    if (this._isRootNode(el)) return this.addRoot(el);
+
+    this.addChild(el);
+  }
+
+  _handleNodeRemoval(node: Node): void {
+    const el = <Element>node;
+
+    if (this._isRootNode(el)) return this.removeRoot(el);
+
+    this.removeChild(el);
+  }
+
+  _isRootNode(el: Element): boolean {
+    var id = el.getAttribute('ngid');
+
+    if (!id) return false;
+
+    return this._selectorMatches(el, this._rootSelector());
+  }
+
+  _selectorMatches(el: Element, selector: string): boolean {
+    function genericMatch(s: string): boolean {
+      return [].indexOf.call(document.querySelectorAll(s), this) !== -1;
+    }
+
+    const p = Element.prototype;
+    const f = p.matches ||
+              p.webkitMatchesSelector ||
+              p.mozMatchesSelector ||
+              p.msMatchesSelector ||
+              genericMatch;
+    };
+
+    return f.call(el, selector);
   }
 }

@@ -20,7 +20,8 @@
  * - addRoot
  * - addChild
  * - changeComponent
- * - removeComponent
+ * - removeRoot
+ * - removeChild
  *
  * These broadcasts are sent to the channel (./channel.ts).
  */
@@ -66,7 +67,16 @@ export interface AdapterEvent {
      this._stream.onNext(childEvt);
    }
 
-   removeComponent(el: Element): void {
+   removeRoot(el: Element): void {
+     const childEvt: AdapterEvent = {
+       type: EventType.REMOVE,
+       node: el,
+     };
+
+     this._stream.onNext(childEvt);
+   }
+
+   removeChild(el: Element): void {
      const childEvt: AdapterEvent = {
        type: EventType.REMOVE,
        node: el,
