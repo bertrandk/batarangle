@@ -29,22 +29,12 @@ export class angular2Adapter extends BaseAdapter {
   setup(): void {
     const roots = this._findRoots();
 
-    roots.forEach(this.addRoot);
+    roots.forEach(root => this._traverseTree(inspectNativeElement(root),
+                                             this._emitNativeElement),
+                                             true);
   }
 
   cleanup(): void {
-  }
-
-  _traverseTree(compEl: DebugElement, cb?: Function, isRoot?: boolean): void {
-    if (isRoot) cb(compEl);
-
-    const children = this._getComponentChildren(compEl);
-
-    if (!children.length) return;
-
-    children.forEach((child: DebugElement) => {
-      this._traverseTree(child, cb);
-    });
   }
 
   _findRoots(): Element[] {
@@ -59,7 +49,29 @@ export class angular2Adapter extends BaseAdapter {
     return Array.prototype.slice.call(roots);
   }
 
+  _traverseTree(compEl: DebugElement, cb?: Function, isRoot?: boolean): void {
+    cb(compEl, isRoot);
+
+    const children = this._getComponentChildren(compEl);
+
+    if (!children.length) return;
+
+    children.forEach((child: DebugElement) => {
+      this._traverseTree(child, cb);
+    });
+  }
+
   _getComponentChildren(compEl: DebugElement) {
     return compEl.componentViewChildren;
+  }
+
+  _emitNativeElement(compEl: DebugElement, isRoot?: boolean): void {
+    if (isRoot) return this.addRoot(this._getNativeElement(compEl));
+
+    this.addChild(this._getNativeElement(compEl));
+  }
+
+  _getNativeElement(compEl: DebugElement): Element {
+    return compEl.nativeElement;
   }
 }
