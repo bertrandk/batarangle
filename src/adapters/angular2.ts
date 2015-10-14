@@ -15,6 +15,12 @@
  * with an `ngid` attribute (put there by DebugElementViewListener). Component
  * events are indicated by DOM mutations.
  *
+ * Interface:
+ * - setup
+ * - cleanup
+ * - subscribe
+ * - serialize
+ *
  * Supports up to 2.0.0-alpha.40
  */
 import {
@@ -35,6 +41,8 @@ export class angular2Adapter extends BaseAdapter {
   }
 
   cleanup(): void {
+    this._removeAllListeners();
+    this.unsubscribe();
   }
 
   _findRoots(): Element[] {
@@ -73,5 +81,9 @@ export class angular2Adapter extends BaseAdapter {
 
   _getNativeElement(compEl: DebugElement): Element {
     return compEl.nativeElement;
+  }
+
+  _removeAllListeners(): void {
+
   }
 }

@@ -16,6 +16,12 @@
  *                    broadcast component changes and removal as well as new
  *                    additions into the view after the intial load.
  *
+ * Interface:
+ * - addRoot
+ * - addChild
+ * - changeComponent
+ * - removeComponent
+ *
  * These broadcasts are sent to the channel (./channel.ts).
  */
 /// <reference path="../../typings/rx/rx.all.d.ts"/>
@@ -73,12 +79,16 @@ export interface AdapterEvent {
      this._stream.subscribe.call(this._stream, next, err, done);
    }
 
+   unsubscribe() {
+     this._stream.onCompleted();
+   }
+
    // TODO(bertrandk): Make below functions abstract.
    setup(): void {
      throw new Error('Not yet implemented.');
    }
 
    cleanup(): void {
-     this._stream.onCompleted();
+     throw new Error('Not yet implemented.');
    }
 }
