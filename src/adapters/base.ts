@@ -33,10 +33,6 @@ export interface AdapterEvent {
  export  class BaseAdapter {
    private _stream: Subject<any> = new Subject();
 
-   subscribe(next?: Function, err?: Function, done?: Function): void {
-     this._stream.subscribe.call(this._stream, next, err, done);
-   }
-
    addRoot(rootEl: Element): void {
      const rootEvt: AdapterEvent = {
        type: EventType.ROOT,
@@ -73,16 +69,16 @@ export interface AdapterEvent {
      this._stream.onNext(childEvt);
    }
 
+   subscribe(next?: Function, err?: Function, done?: Function): void {
+     this._stream.subscribe.call(this._stream, next, err, done);
+   }
+
    // TODO(bertrandk): Make below functions abstract.
    setup(): void {
      throw new Error('Not yet implemented.');
    }
 
-   traverseTree(): void {
-     throw new Error('Not yet implemented.');
-   }
-
    cleanup(): void {
-     throw new Error('Not yet implemented.');
+     this._stream.onCompleted();
    }
 }

@@ -15,7 +15,7 @@
  * with an `ngid` attribute (put there by DebugElementViewListener). Component
  * events are indicated by DOM mutations.
  *
- * Supports up to 2.0.0-alpha.40.
+ * Supports up to 2.0.0-alpha.40
  */
 import {
   DebugElement,
@@ -25,13 +25,26 @@ import { BaseAdapter } from './base';
 
 
 export class angular2Adapter extends BaseAdapter {
-  setup(): void {
-  }
 
-  traverseTree(): void {
+  setup(): void {
+    const roots = this._findRoots();
+
+    roots.forEach(this.addRoot);
   }
 
   cleanup(): void {
+  }
+
+  _traverseTree(compEl: DebugElement, cb?: Function, isRoot?: boolean): void {
+    if (isRoot) cb(compEl);
+
+    const children = this._getComponentChildren(compEl);
+
+    if (!children.length) return;
+
+    children.forEach((child: DebugElement) => {
+      this._traverseTree(child, cb);
+    });
   }
 
   _findRoots(): Element[] {
@@ -44,5 +57,9 @@ export class angular2Adapter extends BaseAdapter {
     const roots = document.body.querySelectorAll(ROOT_SELECTOR);
 
     return Array.prototype.slice.call(roots);
+  }
+
+  _getComponentChildren(compEl: DebugElement) {
+    return compEl.componentViewChildren;
   }
 }
