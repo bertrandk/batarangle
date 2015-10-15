@@ -1,3 +1,4 @@
+/// <reference path="../../typings/es6-shim/es6-shim.d.ts"/>
 /**
  * Adapter for Angular2
  *
@@ -23,8 +24,22 @@
  *
  * Supports up to 2.0.0-alpha.40
  */
-declare var DebugElement: any;
+interface DebugElement {
+  componentInstance: any,
+  nativeElement: any,
+  elementRef: Object,
+  getDirectiveInstance: Function;
+  children: DebugElement[],
+  componentViewChildren: DebugElement[],
+  triggerEventHandler(eventName: string, eventObj: Event): void,
+  hasDirective(type: any): boolean;
+  inject(type: any): any;
+  getLocal(name: string): any;
+  query(p: any, s: Function): DebugElement
+  queryAll(p: any, s: Function): DebugElement[]
+}
 declare var ng: { probe: Function };
+
 
 import { TreeNode, BaseAdapter } from './base';
 
@@ -43,6 +58,7 @@ export class Angular2Adapter extends BaseAdapter {
 
   serializeComponent(el: Element, event: string): TreeNode {
     const debugEl = ng.probe(el);
+    const id = this._getComponentID(debugEl);
     const name = this._getComponentName(debugEl);
     const state = this._getComponentState(debugEl);
     const inputs = this._getComponentInputs(debugEl);
@@ -50,6 +66,7 @@ export class Angular2Adapter extends BaseAdapter {
     const lastTickTime = this._getComponentPerf(debugEl);
 
     return {
+      id,
       name,
       state,
       inputs,
@@ -174,7 +191,7 @@ export class Angular2Adapter extends BaseAdapter {
       return [].indexOf.call(document.querySelectorAll(s), this) !== -1;
     }
 
-    const p = Element.prototype;
+    const p = <any>Element.prototype;
     const f = p.matches ||
               p.webkitMatchesSelector ||
               p.mozMatchesSelector ||
@@ -188,8 +205,19 @@ export class Angular2Adapter extends BaseAdapter {
     return compEl.componentInstance;
   }
 
+  _getComponentRef(compEl: DebugElement): Element {
+    return compEl.nativeElement;
+  }
+
+  _getComponentID(compEl: DebugElement): string {
+    return this._getComponentRef(compEl).getAttribute('data-ngid')
+                                        .replace(/#/g, '.');
+  }
+
   _getComponentName(compEl: DebugElement): string {
-    return this._getComponentInstance(compEl).constructor.name;
+    const constructor =  <any>this._getComponentInstance(compEl)
+                                  .constructor
+    return constructor.name;
   }
 
   _getComponentState(compEl: DebugElement): Object {

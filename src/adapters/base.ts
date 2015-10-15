@@ -23,7 +23,8 @@
  * - removeRoot
  * - removeChild
  *
- * These broadcasts are sent to the channel (./channel.ts).
+ * These broadcasts are sent to the controller, see the DOM controller
+ * (../controller/dom.ts).
  */
 /// <reference path="../../typings/rx/rx.all.d.ts"/>
 import { Subject } from 'rx';
@@ -36,6 +37,7 @@ export interface AdapterEvent {
 }
 
 export interface TreeNode {
+  id: string,
   name: string,
   state: Object,
   inputs: Object,
@@ -48,72 +50,72 @@ export interface TreeNode {
 
 // TSFIXME(bertrandk): This would be much nicer if we could actually extend
 // 'Subject'.
- export  class BaseAdapter {
-   private _stream: Subject<any> = new Subject();
+export class BaseAdapter {
+  private _stream: Subject<any> = new Subject();
 
-   addRoot(rootEl: Element): void {
-     const rootEvt: AdapterEvent = {
-       type: EventType.ROOT,
-       node: rootEl,
-     };
+  addRoot(rootEl: Element): void {
+    const rootEvt: AdapterEvent = {
+      type: EventType.ROOT,
+      node: rootEl,
+    };
 
-     this._stream.onNext(rootEvt);
-   }
+    this._stream.onNext(rootEvt);
+  }
 
-   addChild(childEl: Element): void {
-     const childEvt: AdapterEvent = {
-       type: EventType.ADD,
-       node: childEl,
-     };
+  addChild(childEl: Element): void {
+    const childEvt: AdapterEvent = {
+      type: EventType.ADD,
+      node: childEl,
+    };
 
-     this._stream.onNext(childEvt);
-   }
+    this._stream.onNext(childEvt);
+  }
 
-   changeComponent(el: Element): void {
-     const childEvt: AdapterEvent = {
-       type: EventType.CHANGE,
-       node: el,
-     };
+  changeComponent(el: Element): void {
+    const childEvt: AdapterEvent = {
+      type: EventType.CHANGE,
+      node: el,
+    };
 
-     this._stream.onNext(childEvt);
-   }
+    this._stream.onNext(childEvt);
+  }
 
-   removeRoot(el: Element): void {
-     const childEvt: AdapterEvent = {
-       type: EventType.REMOVE,
-       node: el,
-     };
+  removeRoot(el: Element): void {
+    const childEvt: AdapterEvent = {
+      type: EventType.REMOVE,
+      node: el,
+    };
 
-     this._stream.onNext(childEvt);
-   }
+    this._stream.onNext(childEvt);
+  }
 
-   removeChild(el: Element): void {
-     const childEvt: AdapterEvent = {
-       type: EventType.REMOVE,
-       node: el,
-     };
+  removeChild(el: Element): void {
+    const childEvt: AdapterEvent = {
+      type: EventType.REMOVE,
+      node: el,
+    };
 
-     this._stream.onNext(childEvt);
-   }
+    this._stream.onNext(childEvt);
+  }
 
-   subscribe(next?: Function, err?: Function, done?: Function): void {
-     this._stream.subscribe.call(this._stream, next, err, done);
-   }
+  subscribe(next?: Function, err?: Function, done?: Function): void {
+    this._stream.subscribe.call(this._stream, next, err, done);
+  }
 
-   unsubscribe() {
-     this._stream.onCompleted();
-   }
+  unsubscribe() {
+    this._stream.onCompleted();
+  }
 
-   // TODO(bertrandk): Make below functions abstract.
-   setup(): void {
-     throw new Error('Not yet implemented.');
-   }
+  // TODO(bertrandk): Make below functions abstract.
+  setup(): void {
+    throw new Error('Not yet implemented.');
+  }
 
-   serializeComponent(el: Element): TreeNode {
-     throw new Error('Not yet implemented.');
-   }
+  serializeComponent(el: Element, event: string): TreeNode {
+    throw new Error('Not yet implemented.');
+  }
 
-   cleanup(): void {
-     throw new Error('Not yet implemented.');
-   }
+  cleanup(): void {
+    throw new Error('Not yet implemented.');
+  }
 }
