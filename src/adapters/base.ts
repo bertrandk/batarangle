@@ -31,8 +31,19 @@ import { AdapterEventType as EventType } from './event_types';
 
 
 export interface AdapterEvent {
-  type: string,
+  type: string,   // AdapterEventType
   node: Node,
+}
+
+export interface TreeNode {
+  name: string,
+  state: Object,
+  inputs: Object,
+  outputs: Object,
+  lastTickTime: number,
+  __meta: {
+    event: string,    // AdapterEventType
+  },
 }
 
 // TSFIXME(bertrandk): This would be much nicer if we could actually extend
@@ -95,6 +106,10 @@ export interface AdapterEvent {
 
    // TODO(bertrandk): Make below functions abstract.
    setup(): void {
+     throw new Error('Not yet implemented.');
+   }
+
+   serializeComponent(el: Element): TreeNode {
      throw new Error('Not yet implemented.');
    }
 

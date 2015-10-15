@@ -19,15 +19,14 @@
  * - setup
  * - cleanup
  * - subscribe
- * - serialize
+ * - serializeComponent
  *
  * Supports up to 2.0.0-alpha.40
  */
-import {
-  DebugElement,
-  inspectNativeElement
-} from '../../node_modules/angular2/ts/angular2';
-import { BaseAdapter } from './base';
+declare var DebugElement: any;
+declare var ng: { probe: Function };
+
+import { TreeNode, BaseAdapter } from './base';
 
 
 export class Angular2Adapter extends BaseAdapter {
@@ -36,10 +35,30 @@ export class Angular2Adapter extends BaseAdapter {
   setup(): void {
     const roots = this._findRoots();
 
-    roots.forEach(root => this._traverseTree(inspectNativeElement(root),
+    roots.forEach(root => this._traverseTree(ng.probe(root),
                                              this._emitNativeElement),
                                              true);
     roots.forEach(root => this._trackChanges(root));
+  }
+
+  serializeComponent(el: Element, event: string): TreeNode {
+    const debugEl = ng.probe(el);
+    const name = this._getComponentName(debugEl);
+    const state = this._getComponentState(debugEl);
+    const inputs = this._getComponentInputs(debugEl);
+    const outputs = this._getComponentOutputs(debugEl);
+    const lastTickTime = this._getComponentPerf(debugEl);
+
+    return {
+      name,
+      state,
+      inputs,
+      outputs,
+      lastTickTime,
+      __meta: {
+        event,
+      }
+    };
   }
 
   cleanup(): void {
@@ -161,8 +180,31 @@ export class Angular2Adapter extends BaseAdapter {
               p.mozMatchesSelector ||
               p.msMatchesSelector ||
               genericMatch;
-    };
 
     return f.call(el, selector);
+  }
+
+  _getComponentInstance(compEl: DebugElement): Object {
+    return compEl.componentInstance;
+  }
+
+  _getComponentName(compEl: DebugElement): string {
+    return this._getComponentInstance(compEl).constructor.name;
+  }
+
+  _getComponentState(compEl: DebugElement): Object {
+    return Object.assign({}, this._getComponentInstance(compEl));
+  }
+
+  _getComponentInputs(compEl: DebugElement): Object {
+    return {};
+  }
+
+  _getComponentOutputs(compEl: DebugElement): Object {
+    return {};
+  }
+
+  _getComponentPerf(compEl: DebugElement): number {
+    return 0;
   }
 }
